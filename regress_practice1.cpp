@@ -1,6 +1,10 @@
 #include <iostream>
 #include <random>
 #include <vector>
+// file system
+#include <string>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -13,6 +17,9 @@ class Model_2D
     void create_diff();
     void loss_func();
     void update();
+    //add on!
+    void saveMode(string);
+
   private:
     vector<double> _x;
     vector<double> _y;
@@ -21,6 +28,8 @@ class Model_2D
     double *_diff;
     bool isUse;
     double _lr; // learning rate
+    //add on!!
+    vector<double> _loss;
 };
 
 Model_2D::Model_2D(double a, double b, double lr) {
@@ -55,6 +64,7 @@ void Model_2D::loss_func(){
     _diff[i] = diff;
     error += diff * diff; // sigma(y_predict - y)^2 / 2
   }
+  _loss.push_back(error/2);
   cout << "loss = " << error/2 << endl;
 }
 
@@ -70,6 +80,15 @@ void Model_2D::update() {
   _b = _b + _lr * diff_b;
   cout << "new_a = " << _a << endl;
   cout << "new_b = " << _b << endl;
+}
+
+void Model_2D::saveMode(string filename){
+  ofstream ofs(filename);
+  for(int i=0; i < _loss.size(); i++){
+    ofs << i << "," << _loss[i] << endl;
+  }
+
+  ofs.close();
 }
 
 int main() {
@@ -90,4 +109,5 @@ int main() {
     learning_count++;
     cout << endl;
   }
+  model.saveMode("out.csv");
 }

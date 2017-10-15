@@ -66,11 +66,40 @@ void Model_multi::create_diff(){
 }
 
 void Model_multi::loss_func(){
+  double error = 0;
 
+  for(int i=0; i < _y.size(); i++){
+    double diff = 0;
+    double sum = 0;
+    double* x = _x[i];
+    for(int j=0; j < _n; j++){
+      sum = sum + x[j] * _weight[j];
+      _diff[j + _n*i] = x[j];
+    }
+
+    diff = _y[i] - sum;
+    error += diff * diff;
+
+    for(int k=0; k < _n; k++){
+      _diff[k + _n*i] = _diff[k + _n*i] * diff;
+    }
+  }
+  error = error / 2;
+  _loss.push_back(error);
+
+  cout << "loss = " << error << endl;
 }
 
 void Model_multi::update() {
+  for(int i=0; i < _n; i++){
+    double sum = 0;
+    for(int j=0; j < _y.size(); j++){
+      sum = sum + _diff[i + j*_n];
+    }
 
+    _weight[i] = _weight[i] + _lr*sum;
+    cout << "weight[" << i << "]=" << _weight[i] << endl;
+  }
 }
 
 void Model_multi::saveMode(string filename) {
